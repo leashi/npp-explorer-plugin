@@ -139,10 +139,14 @@ protected:
 
 	BOOL FindFolderAfter(LPCTSTR itemName, HTREEITEM pAfterItem);
 	void UpdateChildren(LPCTSTR pszParentPath, HTREEITEM pCurrentItem, BOOL doRecursive = TRUE);
-	HTREEITEM InsertChildFolder(LPCTSTR childFolderName, HTREEITEM parentItem, HTREEITEM insertAfter = TVI_LAST, BOOL bChildrenTest = TRUE);
+	HTREEITEM InsertChildFolder(LPCTSTR childFolderName, HTREEITEM parentItem, HTREEITEM insertAfter = TVI_LAST, BOOL bChildrenTest = TRUE, DWORD attr = 0);
 	void DrawChildren(HTREEITEM parentItem);
+	
 	void GetFolderPathName(HTREEITEM currentItem, LPTSTR folderPathName) const;
 	std::wstring GetFolderPathName(HTREEITEM currentItem) const;
+
+	void GetFilePathName(HTREEITEM currentItem, LPTSTR folderPathName) const;
+	std::wstring GetFilePathName(HTREEITEM currentItem) const;
 
 	BOOL ExploreVolumeInformation(LPCTSTR pszDrivePathName, LPTSTR pszVolumeName, UINT maxSize);
 

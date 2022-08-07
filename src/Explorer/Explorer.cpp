@@ -653,7 +653,11 @@ BOOL HaveChildren(const std::wstring &folderPath)
     BOOL bFound = TRUE;
     BOOL bRet = FALSE;
     do {
-        if (IsValidFolder(findData) == TRUE) {
+        if (::IsValidFolder(findData) == TRUE) {
+            bFound = FALSE;
+            bRet = TRUE;
+        }
+        else if (::IsValidFile(findData) == TRUE) {
             bFound = FALSE;
             bRet = TRUE;
         }

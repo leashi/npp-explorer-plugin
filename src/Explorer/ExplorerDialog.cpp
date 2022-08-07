@@ -284,6 +284,40 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 			else if (nmhdr->hwndFrom == _hTreeCtrl) {
 				switch (nmhdr->code)
 				{
+					case NM_DBLCLK:
+					{
+						//::SendMessage(_hSelf, EXM_OPENFILE, 0, 0);
+						//return TRUE;
+						
+						POINT			pt = { 0 };
+						TVHITTESTINFO	ht = { 0 };
+						DWORD			dwpos = ::GetMessagePos();
+						HTREEITEM		hItem = NULL;
+
+						pt.x = GET_X_LPARAM(dwpos);
+						pt.y = GET_Y_LPARAM(dwpos);
+
+						ht.pt = pt;
+						::ScreenToClient(_hTreeCtrl, &ht.pt);
+
+						hItem = TreeView_HitTest(_hTreeCtrl, &ht);
+						if (hItem != NULL)
+						{
+							DWORD attr = GetParam(hItem);
+							if (attr > 0 && !(attr & FILE_ATTRIBUTE_DIRECTORY)) {
+								TCHAR		pszFilePath[MAX_PATH];								
+								/* get current folder path */
+								GetFolderPathName(hItem, pszFilePath);
+
+								PathRemoveBackslash(pszFilePath);
+								::SendMessage(_hParent, NPPM_DOOPEN, 0, (LPARAM)pszFilePath);
+
+								return TRUE;
+							}
+						}
+						return TRUE;
+						break;
+					}
 					case NM_RCLICK:
 					{
 						ContextMenu		cm;
@@ -654,15 +688,21 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 		}
 		case EXM_OPENFILE:
 		{
-			if (_tcslen((LPTSTR)lParam) != 0)
+			HTREEITEM	hItem = TreeView_GetSelection(_hTreeCtrl);
+			if (hItem != nullptr)
 			{
 				TCHAR		pszFilePath[MAX_PATH];
 				TCHAR		pszShortcutPath[MAX_PATH];
-				HTREEITEM	hItem = TreeView_GetSelection(_hTreeCtrl);
 
 				/* get current folder path */
 				GetFolderPathName(hItem, pszFilePath);
-				_stprintf(pszShortcutPath, _T("%s%s"), pszFilePath, (LPTSTR)lParam);
+
+				if (lParam != 0 && _tcslen((LPTSTR)lParam) != 0) {
+					_stprintf(pszShortcutPath, _T("%s%s"), pszFilePath, (LPTSTR)lParam);
+				}
+				else {
+					_stprintf(pszShortcutPath, _T("%s"), pszFilePath);
+				}
 
 				/* open possible link */
 				if (ResolveShortCut(pszShortcutPath, pszFilePath, MAX_PATH) == S_OK) {
@@ -672,7 +712,11 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 						::SendMessage(_hParent, NPPM_DOOPEN, 0, (LPARAM)pszFilePath);
 					}
 				} else {
-					::SendMessage(_hParent, NPPM_DOOPEN, 0, (LPARAM)pszShortcutPath);
+					DWORD attr = GetParam(hItem);
+					if (attr > 0 && !(attr & FILE_ATTRIBUTE_DIRECTORY)) {
+						PathRemoveBackslash(pszShortcutPath);
+						::SendMessage(_hParent, NPPM_DOOPEN, 0, (LPARAM)pszShortcutPath);
+					}
 				}
 			}
 			return TRUE;
@@ -1855,7 +1899,7 @@ void ExplorerDialog::UpdatePath(void)
 	_FileList.ToggleStackRec();
 }
 
-HTREEITEM ExplorerDialog::InsertChildFolder(LPCTSTR childFolderName, HTREEITEM parentItem, HTREEITEM insertAfter, BOOL bChildrenTest)
+HTREEITEM ExplorerDialog::InsertChildFolder(LPCTSTR childFolderName, HTREEITEM parentItem, HTREEITEM insertAfter, BOOL bChildrenTest, DWORD attr)
 {
 	/* We search if it already exists */
 	HTREEITEM			pCurrentItem	= TreeView_GetNextItem(_hTreeCtrl, parentItem, TVGN_CHILD);
@@ -1898,7 +1942,7 @@ HTREEITEM ExplorerDialog::InsertChildFolder(LPCTSTR childFolderName, HTREEITEM p
 	ExtractIcons(parentFolderPathName, NULL, devType, &iIconNormal, &iIconSelected, &iIconOverlayed);
 
 	/* set item */
-	return InsertItem(childFolderName, iIconNormal, iIconSelected, iIconOverlayed, bHidden, parentItem, insertAfter, haveChildren);
+	return InsertItem(childFolderName, iIconNormal, iIconSelected, iIconOverlayed, bHidden, parentItem, insertAfter, haveChildren, attr);
 }
 
 BOOL ExplorerDialog::FindFolderAfter(LPCTSTR itemName, HTREEITEM pAfterItem)
@@ -1942,6 +1986,7 @@ void ExplorerDialog::UpdateChildren(LPCTSTR pszParentPath, HTREEITEM hParentItem
 			DWORD			attributes;
 		};
 		std::vector<Folder>		folders;
+		std::vector<Folder>		files;
 
 		/* find folders */
 		do {
@@ -1951,6 +1996,12 @@ void ExplorerDialog::UpdateChildren(LPCTSTR pszParentPath, HTREEITEM hParentItem
 				folder.attributes	= findData.dwFileAttributes;
 				folders.push_back(folder);
 			}
+			else if (::IsValidFile(findData) == TRUE) {
+				Folder folder;
+				folder.name = findData.cFileName;
+				folder.attributes = findData.dwFileAttributes;
+				files.push_back(folder);
+			}
 		} while (::FindNextFile(hFind, &findData));
 		::FindClose(hFind);
 
@@ -1958,6 +2009,14 @@ void ExplorerDialog::UpdateChildren(LPCTSTR pszParentPath, HTREEITEM hParentItem
 		std::sort(folders.begin(), folders.end(), [](const auto &lhs, const auto &rhs) {
 			return lhs.name < rhs.name;
 		});
+
+		std::sort(files.begin(), files.end(), [](const auto& lhs, const auto& rhs) {
+			return lhs.name < rhs.name;
+			});
+
+		for (const auto& folder : files) {
+			folders.push_back(folder);
+		}
 
 		/* update tree */
 		for (const auto &folder : folders) {
@@ -1976,10 +2035,10 @@ void ExplorerDialog::UpdateChildren(LPCTSTR pszParentPath, HTREEITEM hParentItem
 
 						/* Note: If hCurrentItem is the first item in the list pPrevItem is nullptr */
 						if (pPrevItem == nullptr) {
-							hCurrentItem = InsertChildFolder(folder.name.c_str(), hParentItem, TVI_FIRST);
+							hCurrentItem = InsertChildFolder(folder.name.c_str(), hParentItem, TVI_FIRST, TRUE, folder.attributes);
 						}
 						else {
-							hCurrentItem = InsertChildFolder(folder.name.c_str(), hParentItem, pPrevItem);
+							hCurrentItem = InsertChildFolder(folder.name.c_str(), hParentItem, pPrevItem, TRUE, folder.attributes);
 						}
 					}
 
@@ -1999,7 +2058,7 @@ void ExplorerDialog::UpdateChildren(LPCTSTR pszParentPath, HTREEITEM hParentItem
 				ExtractIcons(currentPath.c_str(), nullptr, DEVT_DIRECTORY, &iIconNormal, &iIconSelected, &iIconOverlayed);
 
 				BOOL bHidden = ((folder.attributes & FILE_ATTRIBUTE_HIDDEN) != 0);
-				UpdateItem(hCurrentItem, folderName, iIconNormal, iIconSelected, iIconOverlayed, bHidden, haveChildren);
+				UpdateItem(hCurrentItem, folderName, iIconNormal, iIconSelected, iIconOverlayed, bHidden, haveChildren, folder.attributes);
 
 				/* update recursive */
 				if ((doRecursive) && IsItemExpanded(hCurrentItem)) {
@@ -2010,7 +2069,7 @@ void ExplorerDialog::UpdateChildren(LPCTSTR pszParentPath, HTREEITEM hParentItem
 				hCurrentItem = TreeView_GetNextItem(_hTreeCtrl, hCurrentItem, TVGN_NEXT);
 			}
 			else {
-				hCurrentItem = InsertChildFolder(folder.name.c_str(), hParentItem);
+				hCurrentItem = InsertChildFolder(folder.name.c_str(), hParentItem, TVI_LAST, TRUE, folder.attributes);
 				hCurrentItem = TreeView_GetNextItem(_hTreeCtrl, hCurrentItem, TVGN_NEXT);
 			}
 		}
@@ -2029,7 +2088,15 @@ void ExplorerDialog::DrawChildren(HTREEITEM parentItem)
 	TCHAR						parentFolderPathName[MAX_PATH];
 	WIN32_FIND_DATA				Find = { 0 };
 	HANDLE						hFind = NULL;
-	std::vector<std::wstring>	vFolderList;
+
+	//std::vector<std::wstring>	vFolderList;
+	//std::vector<std::wstring>	vFileList;
+	struct Folder {
+		std::wstring	name;
+		DWORD			attributes;
+	};
+	std::vector<Folder>		folders;
+	std::vector<Folder>		files;	
 
 	GetFolderPathName(parentItem, parentFolderPathName);
 
@@ -2047,17 +2114,45 @@ void ExplorerDialog::DrawChildren(HTREEITEM parentItem)
 	if (hFind != INVALID_HANDLE_VALUE) {
 		do {
 			if (IsValidFolder(Find) == TRUE) {
-				vFolderList.push_back(Find.cFileName);
+				Folder folder;
+				folder.name = Find.cFileName;
+				folder.attributes = Find.dwFileAttributes;
+				folders.push_back(folder);
+				//vFolderList.push_back(Find.cFileName);
+			}
+			else if (IsValidFile(Find) == TRUE) {
+				Folder folder;
+				folder.name = Find.cFileName;
+				folder.attributes = Find.dwFileAttributes;
+				files.push_back(folder);
+				//vFileList.push_back(Find.cFileName);
 			}
 		} while (FindNextFile(hFind, &Find));
 
 		::FindClose(hFind);
 
 		/* sort data */
-		std::sort(vFolderList.begin(), vFolderList.end());
+		//std::sort(vFolderList.begin(), vFolderList.end());
+		//std::sort(vFileList.begin(), vFileList.end());
+		//for (const auto& folder : vFileList) {
+		//	vFolderList.push_back(folder);
+		//}
 
-		for (const auto& folder : vFolderList) {
-			if (InsertChildFolder(folder.c_str(), parentItem) == NULL) {
+		/* sort data */
+		std::sort(folders.begin(), folders.end(), [](const auto& lhs, const auto& rhs) {
+			return lhs.name < rhs.name;
+			});
+
+		std::sort(files.begin(), files.end(), [](const auto& lhs, const auto& rhs) {
+			return lhs.name < rhs.name;
+			});
+
+		for (const auto& folder : files) {
+			folders.push_back(folder);
+		}
+
+		for (const auto& folder : folders) {
+			if (InsertChildFolder(folder.name.c_str(), parentItem, TVI_LAST, TRUE, folder.attributes) == NULL) {
 				break;
 			}
 		}
@@ -2117,6 +2212,58 @@ std::wstring ExplorerDialog::GetFolderPathName(HTREEITEM currentItem) const
 	if (!result.empty()) {
 		if ('\\' != result.back()) {
 			result += L"\\";
+		}
+	}
+
+	return result;
+}
+
+void ExplorerDialog::GetFilePathName(HTREEITEM currentItem, LPTSTR folderPathName) const
+{
+	std::vector<std::wstring> paths = GetItemPathFromRoot(currentItem);
+
+	folderPathName[0] = '\0';
+
+	for (size_t i = 0; i < paths.size(); i++) {
+		if (i == 0) {
+			// root is local drive,
+			if (('A' <= paths[i][0]) && (paths[i][0] <= 'Z')) {
+				swprintf(folderPathName, L"%c:", paths[i][0]);
+			}
+			// root is UNC paths
+			else {
+				swprintf(folderPathName, L"%s", paths[i].c_str());
+			}
+		}
+		else {
+			swprintf(folderPathName, L"%s\\%s", folderPathName, paths[i].c_str());
+		}
+	}
+	if (folderPathName[0] != '\0') {
+		PathRemoveBackslash(folderPathName);		
+	}
+}
+
+std::wstring ExplorerDialog::GetFilePathName(HTREEITEM currentItem) const
+{
+	std::wstring result;
+	std::vector<std::wstring> paths = GetItemPathFromRoot(currentItem);
+
+	bool firstLoop = true;
+	for (const auto& path : paths) {
+		if (firstLoop) {
+			if (::PathIsUNC(path.c_str())) {
+				result = path;
+			}
+			else {
+				result = path.front();
+				result += L":";
+			}
+			firstLoop = false;
+		}
+		else {
+			result += L"\\";
+			result += path;
 		}
 	}
 
