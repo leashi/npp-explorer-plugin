@@ -174,9 +174,9 @@ ExplorerDialog::ExplorerDialog(void) : DockingDlgInterface(IDD_EXPLORER_DLG)
 	_hDefaultTreeProc		= NULL;
 	_hDefaultSplitterProc	= NULL;
 	_hTreeCtrl				= NULL;
-	_hListCtrl				= NULL;
-	_hHeader				= NULL;
-	_hFilter				= NULL;
+	//_hListCtrl				= NULL;
+	//_hHeader				= NULL;
+	//_hFilter				= NULL;
 	_hCurWait				= NULL;
 	_isScrolling			= FALSE;
 	_isDnDStarted			= FALSE;
@@ -200,7 +200,7 @@ void ExplorerDialog::init(HINSTANCE hInst, HWND hParent, ExProp *prop)
 	DockingDlgInterface::init(hInst, hParent);
 
 	_pExProp = prop;
-	_FileList.initProp(prop);
+	//_FileList.initProp(prop);
 }
 
 
@@ -255,11 +255,11 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 		}
 		case WM_COMMAND:
 		{
-			if (((HWND)lParam == _hFilter) && (HIWORD(wParam) == CBN_SELCHANGE))
-			{
-				::SendMessage(_hSelf, EXM_CHANGECOMBO, 0, 0);
-				return TRUE;
-			}
+			//if (((HWND)lParam == _hFilter) && (HIWORD(wParam) == CBN_SELCHANGE))
+			//{
+			//	::SendMessage(_hSelf, EXM_CHANGECOMBO, 0, 0);
+			//	return TRUE;
+			//}
 			
 			if ((HWND)lParam == _ToolBar.getHSelf())
 			{
@@ -382,10 +382,10 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 						break;
 				}
 			}
-			else if ((nmhdr->hwndFrom == _hListCtrl) || (nmhdr->hwndFrom == _hHeader))
-			{
-				return _FileList.notify(wParam, lParam);
-			}
+			//else if ((nmhdr->hwndFrom == _hListCtrl) || (nmhdr->hwndFrom == _hHeader))
+			//{
+			//	return _FileList.notify(wParam, lParam);
+			//}
 			else if ((nmhdr->hwndFrom == _ToolBar.getHSelf()) && (nmhdr->code == TBN_DROPDOWN))
 			{
 				tb_not((LPNMTOOLBAR)lParam);
@@ -453,41 +453,41 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 				/* set position of tree control */
 				getClientRect(rc);
 				rc.top    += 26;
-				rc.bottom  = splitterPos;
+				rc.bottom -= 26;
 				::SetWindowPos(_hTreeCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 				/* set splitter */
-				getClientRect(rc);
-				rc.top	   = (splitterPos + 26);
-				rc.bottom  = 6;
-				::SetWindowPos(_hSplitterCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
+				//getClientRect(rc);
+				//rc.top	   = (splitterPos + 26);
+				//rc.bottom  = 6;
+				//::SetWindowPos(_hSplitterCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 				/* set position of list control */
-				getClientRect(rc);
-				rc.top	   = (splitterPos + 32);
-				rc.bottom -= (splitterPos + 32 + 22);
-				::SetWindowPos(_hListCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
+				//getClientRect(rc);
+				//rc.top	   = (splitterPos + 32);
+				//rc.bottom -= (splitterPos + 32 + 22);
+				//::SetWindowPos(_hListCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 				/* set position of filter controls */
-				getClientRect(rc);
-				rcBuff = rc;
+				//getClientRect(rc);
+				//rcBuff = rc;
 
 				/* set position of static text */
-				hWnd = ::GetDlgItem(_hSelf, IDC_STATIC_FILTER);
-				::GetWindowRect(hWnd, &rcWnd);
-				rc.top	     = rcBuff.bottom - 18;
-				rc.bottom    = 12;
-				rc.left     += 2;
-				rc.right     = rcWnd.right - rcWnd.left;
-				::SetWindowPos(hWnd, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
-				rcBuff.left = rc.right + 4;
+				//hWnd = ::GetDlgItem(_hSelf, IDC_STATIC_FILTER);
+				//::GetWindowRect(hWnd, &rcWnd);
+				//rc.top	     = rcBuff.bottom - 18;
+				//rc.bottom    = 12;
+				//rc.left     += 2;
+				//rc.right     = rcWnd.right - rcWnd.left;
+				//::SetWindowPos(hWnd, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
+				//rcBuff.left = rc.right + 4;
 
 				/* set position of combo */
-				rc.top		 = rcBuff.bottom - 21;
-				rc.bottom	 = 20;
-				rc.left		 = rcBuff.left;
-				rc.right	 = rcBuff.right - rcBuff.left;
-				::SetWindowPos(_hFilter, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);				
+				//rc.top		 = rcBuff.bottom - 21;
+				//rc.bottom	 = 20;
+				//rc.left		 = rcBuff.left;
+				//rc.right	 = rcBuff.right - rcBuff.left;
+				//::SetWindowPos(_hFilter, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);				
 			}
 			else
 			{
@@ -507,61 +507,61 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 				getClientRect(rc);
 				rc.top    += 26;
 				rc.bottom -= 26 + 22;
-				rc.right   = splitterPos;
+				rc.right = splitterPos;
 				::SetWindowPos(_hTreeCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 				/* set position of filter controls */
-				getClientRect(rc);
-				rcBuff = rc;
+				//getClientRect(rc);
+				//rcBuff = rc;
 
 				/* set position of static text */
-				hWnd = ::GetDlgItem(_hSelf, IDC_STATIC_FILTER);
-				::GetWindowRect(hWnd, &rcWnd);
-				rc.top	     = rcBuff.bottom - 18;
-				rc.bottom    = 12;
-				rc.left     += 2;
-				rc.right     = rcWnd.right - rcWnd.left;
-				::SetWindowPos(hWnd, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
+				//hWnd = ::GetDlgItem(_hSelf, IDC_STATIC_FILTER);
+				//::GetWindowRect(hWnd, &rcWnd);
+				//rc.top	     = rcBuff.bottom - 18;
+				//rc.bottom    = 12;
+				//rc.left     += 2;
+				//rc.right     = rcWnd.right - rcWnd.left;
+				//::SetWindowPos(hWnd, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-				rcBuff.left = rc.right + 4;
+				//rcBuff.left = rc.right + 4;
 
 				/* set position of combo */
-				rc.top		 = rcBuff.bottom - 21;
-				rc.bottom	 = 20;
-				rc.left		 = rcBuff.left;
-				rc.right	 = splitterPos - rcBuff.left;
-				::SetWindowPos(_hFilter, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
+				//rc.top		 = rcBuff.bottom - 21;
+				//rc.bottom	 = 20;
+				//rc.left		 = rcBuff.left;
+				//rc.right	 = splitterPos - rcBuff.left;
+				//::SetWindowPos(_hFilter, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 				/* set splitter */
-				getClientRect(rc);
-				rc.left		 = splitterPos;
-				rc.right     = 6;
-				::SetWindowPos(_hSplitterCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
+				//getClientRect(rc);
+				//rc.left		 = splitterPos;
+				//rc.right     = 6;
+				//::SetWindowPos(_hSplitterCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 				/* set position of list control */
-				getClientRect(rc);
-				rc.left      = splitterPos + 6;
-				rc.right    -= rc.left;
-				::SetWindowPos(_hListCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
+				//getClientRect(rc);
+				//rc.left      = splitterPos + 6;
+				//rc.right    -= rc.left;
+				//::SetWindowPos(_hListCtrl, NULL, rc.left, rc.top, rc.right, rc.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 			}
 			break;
 		}
 		case WM_DRAWITEM:
 		{
-			DRAWITEMSTRUCT*	pDrawItemStruct	= (DRAWITEMSTRUCT *)lParam;
+			//DRAWITEMSTRUCT*	pDrawItemStruct	= (DRAWITEMSTRUCT *)lParam;
 
-			if (pDrawItemStruct->hwndItem == _hSplitterCtrl)
-			{
-				RECT		rc		= pDrawItemStruct->rcItem;
-				HDC			hDc		= pDrawItemStruct->hDC;
-				HBRUSH		bgbrush	= ::CreateSolidBrush(::GetSysColor(COLOR_BTNFACE));
+			//if (pDrawItemStruct->hwndItem == _hSplitterCtrl)
+			//{
+			//	RECT		rc		= pDrawItemStruct->rcItem;
+			//	HDC			hDc		= pDrawItemStruct->hDC;
+			//	HBRUSH		bgbrush	= ::CreateSolidBrush(::GetSysColor(COLOR_BTNFACE));
 
-				/* fill background */
-				::FillRect(hDc, &rc, bgbrush);
+			//	/* fill background */
+			//	::FillRect(hDc, &rc, bgbrush);
 
-				::DeleteObject(bgbrush);
-				return TRUE;
-			}
+			//	::DeleteObject(bgbrush);
+			//	return TRUE;
+			//}
 			break;
 		}
 		case WM_PAINT:
@@ -574,8 +574,8 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 			TCHAR	szLastFilter[MAX_PATH];
 
 			::DestroyIcon(_data.hIconTab);
-			_pExProp->vStrFilterHistory = _ComboFilter.getComboList();
-			_ComboFilter.getText(szLastFilter, MAX_PATH);
+			//_pExProp->vStrFilterHistory = _ComboFilter.getComboList();
+			//_ComboFilter.getText(szLastFilter, MAX_PATH);
 			if (_tcslen(szLastFilter) != 0)
 				_pExProp->fileFilter.setFilter(szLastFilter);
 
@@ -614,7 +614,7 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 				_hDefaultTreeProc = nullptr;
 			}
 			if (_hDefaultSplitterProc != nullptr) {
-				::SetWindowLongPtr(_hSplitterCtrl, GWLP_WNDPROC, (LONG_PTR)_hDefaultSplitterProc);
+				//::SetWindowLongPtr(_hSplitterCtrl, GWLP_WNDPROC, (LONG_PTR)_hDefaultSplitterProc);
 				_hDefaultSplitterProc = nullptr;
 			}
 
@@ -622,14 +622,14 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 		}
 		case EXM_CHANGECOMBO:
 		{
-			WCHAR searchWords[MAX_PATH] = {};
-			if (_ComboFilter.getSelText(searchWords)) {
-				_FileList.filterFiles(searchWords);
-			}
-			else {
-				_FileList.filterFiles(L"*");
-			}
-			return TRUE;
+			//WCHAR searchWords[MAX_PATH] = {};
+			//if (_ComboFilter.getSelText(searchWords)) {
+			//	_FileList.filterFiles(searchWords);
+			//}
+			//else {
+			//	_FileList.filterFiles(L"*");
+			//}
+			//return TRUE;
 		}
 		case EXM_OPENDIR:
 		{
@@ -678,11 +678,11 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 				SelectItem(folderPathName);
 
 				/* set position of selection */
-				if (folderChildPath[0] != '\0') {
-					_FileList.SelectFolder(folderChildPath);
-				} else {
-					_FileList.SelectFolder(_T(".."));
-				}
+				//if (folderChildPath[0] != '\0') {
+				//	_FileList.SelectFolder(folderChildPath);
+				//} else {
+				//	_FileList.SelectFolder(_T(".."));
+				//}
 			}
 			return TRUE;
 		}
@@ -782,16 +782,16 @@ INT_PTR CALLBACK ExplorerDialog::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 			{
 				::KillTimer(_hSelf, EXT_SELCHANGE);
 
-				TCHAR		strPathName[MAX_PATH];
-				HTREEITEM	hItem = TreeView_GetSelection(_hTreeCtrl);
+				//TCHAR		strPathName[MAX_PATH];
+				//HTREEITEM	hItem = TreeView_GetSelection(_hTreeCtrl);
 
-				if (hItem != NULL)
-				{
-					GetFolderPathName(hItem, strPathName);
-					_FileList.viewPath(strPathName, TRUE);
-					updateDockingDlg();
-				}
-				return FALSE;
+				//if (hItem != NULL)
+				//{
+				//	GetFolderPathName(hItem, strPathName);
+				//	//_FileList.viewPath(strPathName, TRUE);
+				//	updateDockingDlg();
+				//}
+				return TRUE;
 			}
 			return TRUE;
 		}
@@ -843,11 +843,11 @@ LRESULT ExplorerDialog::runTreeProc(HWND hwnd, UINT Message, WPARAM wParam, LPAR
 				}
 				case VK_TAB:
 				{
-					if ((0x8000 & ::GetKeyState(VK_SHIFT)) == 0x8000) {
-						::SetFocus(_hFilter);
-					} else {
-						::SetFocus(_hListCtrl);
-					}
+					//if ((0x8000 & ::GetKeyState(VK_SHIFT)) == 0x8000) {
+					//	::SetFocus(_hFilter);
+					//} else {
+					//	::SetFocus(_hListCtrl);
+					//}
 					return TRUE;
 				}
 				default:
@@ -1074,48 +1074,48 @@ void ExplorerDialog::tb_cmd(WPARAM message)
 	{
 		case IDM_EX_PREV:
 		{
-			TCHAR			pszPath[MAX_PATH];
-			BOOL			dirValid	= TRUE;
-			BOOL			selected	= TRUE;
-			std::vector<std::wstring>	vStrItems;
+			//TCHAR			pszPath[MAX_PATH];
+			//BOOL			dirValid	= TRUE;
+			//BOOL			selected	= TRUE;
+			//std::vector<std::wstring>	vStrItems;
 
-			_FileList.ToggleStackRec();
+			////_FileList.ToggleStackRec();
 
-			do {
-				if (dirValid = _FileList.GetPrevDir(pszPath, vStrItems))
-					selected = SelectItem(pszPath);
-			} while (dirValid && (selected == FALSE));
+			//do {
+			//	if (dirValid = _FileList.GetPrevDir(pszPath, vStrItems))
+			//		selected = SelectItem(pszPath);
+			//} while (dirValid && (selected == FALSE));
 
-			if (selected == FALSE)
-				_FileList.GetNextDir(pszPath, vStrItems);
+			//if (selected == FALSE)
+			//	_FileList.GetNextDir(pszPath, vStrItems);
 
-			if (vStrItems.size() != 0)
-				_FileList.SetItems(vStrItems);
+			//if (vStrItems.size() != 0)
+			//	_FileList.SetItems(vStrItems);
 
-			_FileList.ToggleStackRec();
+			//_FileList.ToggleStackRec();
 			break;
 		}
 		case IDM_EX_NEXT:
 		{
-			TCHAR			pszPath[MAX_PATH];
-			BOOL			dirValid	= TRUE;
-			BOOL			selected	= TRUE;
-			std::vector<std::wstring>	vStrItems;
+			//TCHAR			pszPath[MAX_PATH];
+			//BOOL			dirValid	= TRUE;
+			//BOOL			selected	= TRUE;
+			//std::vector<std::wstring>	vStrItems;
 
-			_FileList.ToggleStackRec();
+			//_FileList.ToggleStackRec();
 
-			do {
-				if (dirValid = _FileList.GetNextDir(pszPath, vStrItems))
-					selected = SelectItem(pszPath);
-			} while (dirValid && (selected == FALSE));
+			//do {
+			//	if (dirValid = _FileList.GetNextDir(pszPath, vStrItems))
+			//		selected = SelectItem(pszPath);
+			//} while (dirValid && (selected == FALSE));
 
-			if (selected == FALSE)
-				_FileList.GetPrevDir(pszPath, vStrItems);
+			//if (selected == FALSE)
+			//	_FileList.GetPrevDir(pszPath, vStrItems);
 
-			if (vStrItems.size() != 0)
-				_FileList.SetItems(vStrItems);
+			//if (vStrItems.size() != 0)
+			//	_FileList.SetItems(vStrItems);
 
-			_FileList.ToggleStackRec();
+			//_FileList.ToggleStackRec();
 			break;
 		}
 		case IDM_EX_FILE_NEW:
@@ -1219,14 +1219,14 @@ void ExplorerDialog::tb_not(LPNMTOOLBAR lpnmtb)
 	LPTSTR		*pszPathes;
 	INT			iElements	= 0;
 		
-	_FileList.ToggleStackRec();
+	//_FileList.ToggleStackRec();
 
 	/* get element cnt */
-	if (lpnmtb->iItem == IDM_EX_PREV) {
-		iElements = _FileList.GetPrevDirs(NULL);
-	} else if (lpnmtb->iItem == IDM_EX_NEXT) {
-		iElements = _FileList.GetNextDirs(NULL);
-	}
+	//if (lpnmtb->iItem == IDM_EX_PREV) {
+	//	iElements = _FileList.GetPrevDirs(NULL);
+	//} else if (lpnmtb->iItem == IDM_EX_NEXT) {
+	//	iElements = _FileList.GetNextDirs(NULL);
+	//}
 
 	/* allocate elements */
 	pszPathes	= (LPTSTR*)new LPTSTR[iElements];
@@ -1234,11 +1234,11 @@ void ExplorerDialog::tb_not(LPNMTOOLBAR lpnmtb)
 		pszPathes[i] = (LPTSTR)new TCHAR[MAX_PATH];
 
 	/* get directories */
-	if (lpnmtb->iItem == IDM_EX_PREV) {
-		_FileList.GetPrevDirs(pszPathes);
-	} else if (lpnmtb->iItem == IDM_EX_NEXT) {
-		_FileList.GetNextDirs(pszPathes);
-	}
+	//if (lpnmtb->iItem == IDM_EX_PREV) {
+	//	_FileList.GetPrevDirs(pszPathes);
+	//} else if (lpnmtb->iItem == IDM_EX_NEXT) {
+	//	_FileList.GetNextDirs(pszPathes);
+	//}
 
 	POINT	pt		= {0};
 	HMENU	hMenu	= ::CreatePopupMenu();
@@ -1259,17 +1259,17 @@ void ExplorerDialog::tb_not(LPNMTOOLBAR lpnmtb)
 		std::vector<std::wstring>	vStrItems;
 
 		SelectItem(pszPathes[cmd-1]);
-		_FileList.OffsetItr(lpnmtb->iItem == IDM_EX_PREV ? -cmd : cmd, vStrItems);
+		//_FileList.OffsetItr(lpnmtb->iItem == IDM_EX_PREV ? -cmd : cmd, vStrItems);
 
-		if (vStrItems.size() != 0)
-			_FileList.SetItems(vStrItems);
+		//if (vStrItems.size() != 0)
+			//_FileList.SetItems(vStrItems);
 	}
 
 	for (i = 0; i < iElements; i++)
 		delete [] pszPathes[i];
 	delete [] pszPathes;
 
-	_FileList.ToggleStackRec();
+	//_FileList.ToggleStackRec();
 }
 
 void ExplorerDialog::NotifyEvent(DWORD event)
@@ -1287,12 +1287,12 @@ void ExplorerDialog::NotifyEvent(DWORD event)
 		case EID_INIT :
 		{
 			/* initilize combo */
-			_ComboFilter.setComboList(_pExProp->vStrFilterHistory);
-			_ComboFilter.addText(_T("*.*"));
-			_ComboFilter.setText(_pExProp->fileFilter.getFilterString());
+			//_ComboFilter.setComboList(_pExProp->vStrFilterHistory);
+			//_ComboFilter.addText(_T("*.*"));
+			//_ComboFilter.setText(_pExProp->fileFilter.getFilterString());
 
 			/* initilize file list */
-			_FileList.SetToolBarInfo(&_ToolBar , IDM_EX_PREV, IDM_EX_NEXT);
+			//_FileList.SetToolBarInfo(&_ToolBar , IDM_EX_PREV, IDM_EX_NEXT);
 
 			/* initial tree */
 			UpdateDevices();
@@ -1375,13 +1375,13 @@ void ExplorerDialog::InitialDialog(void)
 {
 	/* get handle of dialogs */
 	_hTreeCtrl		= ::GetDlgItem(_hSelf, IDC_TREE_FOLDER);
-	_hListCtrl		= ::GetDlgItem(_hSelf, IDC_LIST_FILE);
-	_hHeader		= ListView_GetHeader(_hListCtrl);
-	_hSplitterCtrl	= ::GetDlgItem(_hSelf, IDC_BUTTON_SPLITTER);
-	_hFilter		= ::GetDlgItem(_hSelf, IDC_COMBO_FILTER);
+	//_hListCtrl		= ::GetDlgItem(_hSelf, IDC_LIST_FILE);
+	//_hHeader		= ListView_GetHeader(_hListCtrl);
+	//_hSplitterCtrl	= ::GetDlgItem(_hSelf, IDC_BUTTON_SPLITTER);
+	//_hFilter		= ::GetDlgItem(_hSelf, IDC_COMBO_FILTER);
 
 	::SendMessage(_hTreeCtrl, WM_SETFONT, (WPARAM)_pExProp->defaultFont, TRUE);
-	::SendMessage(_hListCtrl, WM_SETFONT, (WPARAM)_pExProp->defaultFont, TRUE);
+	//::SendMessage(_hListCtrl, WM_SETFONT, (WPARAM)_pExProp->defaultFont, TRUE);
 
 	/* subclass tree */
 	::SetWindowLongPtr(_hTreeCtrl, GWLP_USERDATA, (LONG_PTR)this);
@@ -1390,14 +1390,14 @@ void ExplorerDialog::InitialDialog(void)
 	/* subclass splitter */
 	_hSplitterCursorUpDown		= ::LoadCursor(_hInst, MAKEINTRESOURCE(IDC_UPDOWN));
 	_hSplitterCursorLeftRight	= ::LoadCursor(_hInst, MAKEINTRESOURCE(IDC_LEFTRIGHT));
-	::SetWindowLongPtr(_hSplitterCtrl, GWLP_USERDATA, (LONG_PTR)this);
-	_hDefaultSplitterProc = (WNDPROC)::SetWindowLongPtr(_hSplitterCtrl, GWLP_WNDPROC, (LONG_PTR)wndDefaultSplitterProc);
+	//::SetWindowLongPtr(_hSplitterCtrl, GWLP_USERDATA, (LONG_PTR)this);
+	//_hDefaultSplitterProc = (WNDPROC)::SetWindowLongPtr(_hSplitterCtrl, GWLP_WNDPROC, (LONG_PTR)wndDefaultSplitterProc);
 
 	/* Load Image List */
 	::SendMessage(_hTreeCtrl, TVM_SETIMAGELIST, TVSIL_NORMAL, (LPARAM)GetSmallImageList(_pExProp->bUseSystemIcons));
 
 	/* initial file list */
-	_FileList.init(_hInst, _hSelf, _hListCtrl);
+	//_FileList.init(_hInst, _hSelf, _hListCtrl);
 
 	/* create toolbar */
 	_ToolBar.init(_hInst, _hSelf, TB_STANDARD, toolBarIcons, sizeof(toolBarIcons)/sizeof(ToolBarButtonUnit));
@@ -1409,7 +1409,7 @@ void ExplorerDialog::InitialDialog(void)
 	_Rebar.setIDVisible(REBAR_BAR_TOOLBAR, true);
 
 	/* initial combo */
-	_ComboFilter.init(_hFilter, _hSelf);
+	//_ComboFilter.init(_hFilter, _hSelf);
 
 	/* load cursor */
 	_hCurWait = ::LoadCursor(NULL, IDC_WAIT);
@@ -1426,49 +1426,49 @@ void ExplorerDialog::InitialDialog(void)
 	AddSuportedFormat(_hTreeCtrl, fmtetc); 
 
 	// key binding
-	_FileList.setDefaultOnCharHandler([this](UINT nChar, UINT /* nRepCnt */, UINT /* nFlags */) -> BOOL {
-		switch (nChar) {
-		case VK_TAB:
-			if ((0x8000 & ::GetKeyState(VK_SHIFT)) == 0x8000) {
-				::SetFocus(_hTreeCtrl);
-			}
-			else {
-				::SetFocus(_hFilter);
-			}
-			return TRUE;
-		case VK_ESCAPE:
-			NppInterface::setFocusToCurrentEdit();
-			return TRUE;
-		default:
-			break;
-		}
-		return FALSE;
-	});
+	//_FileList.setDefaultOnCharHandler([this](UINT nChar, UINT /* nRepCnt */, UINT /* nFlags */) -> BOOL {
+	//	switch (nChar) {
+	//	case VK_TAB:
+	//		if ((0x8000 & ::GetKeyState(VK_SHIFT)) == 0x8000) {
+	//			::SetFocus(_hTreeCtrl);
+	//		}
+	//		else {
+	//			::SetFocus(_hFilter);
+	//		}
+	//		return TRUE;
+	//	case VK_ESCAPE:
+	//		NppInterface::setFocusToCurrentEdit();
+	//		return TRUE;
+	//	default:
+	//		break;
+	//	}
+	//	return FALSE;
+	//});
 
-	_ComboFilter.setDefaultOnCharHandler([this](UINT nChar, UINT /* nRepCnt */, UINT /* nFlags */) -> BOOL {
-		switch (nChar) {
-		case VK_TAB:
-			if ((0x8000 & ::GetKeyState(VK_SHIFT)) == 0x8000) {
-				::SetFocus(_hListCtrl);
-			}
-			else {
-				::SetFocus(_hTreeCtrl);
-			}
-			return TRUE;
-		case VK_ESCAPE:
-			NppInterface::setFocusToCurrentEdit();
-			return TRUE;
-		default:
-			break;
-		}
-		return FALSE;
-	});
+	//_ComboFilter.setDefaultOnCharHandler([this](UINT nChar, UINT /* nRepCnt */, UINT /* nFlags */) -> BOOL {
+	//	switch (nChar) {
+	//	case VK_TAB:
+	//		if ((0x8000 & ::GetKeyState(VK_SHIFT)) == 0x8000) {
+	//			::SetFocus(_hListCtrl);
+	//		}
+	//		else {
+	//			::SetFocus(_hTreeCtrl);
+	//		}
+	//		return TRUE;
+	//	case VK_ESCAPE:
+	//		NppInterface::setFocusToCurrentEdit();
+	//		return TRUE;
+	//	default:
+	//		break;
+	//	}
+	//	return FALSE;
+	//});
 }
 
 void ExplorerDialog::SetFont(const HFONT font)
 {
 	::SendMessage(_hTreeCtrl, WM_SETFONT, (WPARAM)font, TRUE);
-	::SendMessage(_hListCtrl, WM_SETFONT, (WPARAM)font, TRUE);
+	//::SendMessage(_hListCtrl, WM_SETFONT, (WPARAM)font, TRUE);
 }
 
 BOOL ExplorerDialog::SelectItem(LPCTSTR path)
@@ -1597,7 +1597,7 @@ BOOL ExplorerDialog::SelectItem(LPCTSTR path)
 			TreeView_SelectItem(_hTreeCtrl, hItemSel);
 			TreeView_EnsureVisible(_hTreeCtrl, hItemSel);
 
-			_FileList.viewPath(szCurrPath, TRUE);
+			//_FileList.viewPath(szCurrPath, TRUE);
 			updateDockingDlg();
 		}
 
@@ -1676,7 +1676,7 @@ void ExplorerDialog::gotoCurrentFile(void)
 	::SendMessage(_hParent, NPPM_GETCURRENTDIRECTORY, 0, (LPARAM)pathName);
 	_tcscat(pathName, _T("\\"));
 	SelectItem(pathName);
-	_FileList.SelectCurFile();
+	//_FileList.SelectCurFile();
 	setFocusOnFile();
 }
 
@@ -1686,7 +1686,7 @@ void ExplorerDialog::gotoFileLocation(const std::wstring& filePath)
 	SelectItem(parentFodler.c_str());
 
 	std::wstring fileName = filePath.substr(filePath.find_last_of(L"\\") + 1);
-	_FileList.SelectFile(fileName);
+	//_FileList.SelectFile(fileName);
 
 	setFocusOnFile();
 }
@@ -1698,17 +1698,17 @@ void ExplorerDialog::setFocusOnFolder(void)
 
 void ExplorerDialog::setFocusOnFile(void)
 {
-	::SetFocus(_FileList.getHSelf());
+	//::SetFocus(_FileList.getHSelf());
 }
 
 void ExplorerDialog::clearFilter(void)
 {
 	_pExProp->vStrFilterHistory.clear();
 	_pExProp->fileFilter.setFilter(L"*.*");
-	_ComboFilter.clearComboList();
-	_ComboFilter.addText(_T("*.*"));
-	_ComboFilter.setText(_T("*.*"));
-	_FileList.filterFiles(_T("*.*"));
+	//_ComboFilter.clearComboList();
+	//_ComboFilter.addText(_T("*.*"));
+	//_ComboFilter.setText(_T("*.*"));
+	//_FileList.filterFiles(_T("*.*"));
 }
 
 /**************************************************************************
@@ -1893,10 +1893,10 @@ void ExplorerDialog::UpdatePath(void)
 {
 	TCHAR	pszPath[MAX_PATH];
 
-	_FileList.ToggleStackRec();
+	//_FileList.ToggleStackRec();
 	GetFolderPathName(TreeView_GetSelection(_hTreeCtrl), pszPath);
-	_FileList.viewPath(pszPath);
-	_FileList.ToggleStackRec();
+	//_FileList.viewPath(pszPath);
+	//_FileList.ToggleStackRec();
 }
 
 HTREEITEM ExplorerDialog::InsertChildFolder(LPCTSTR childFolderName, HTREEITEM parentItem, HTREEITEM insertAfter, BOOL bChildrenTest, DWORD attr)
@@ -2495,10 +2495,10 @@ void ExplorerDialog::UpdateColors()
 		::InvalidateRect(_hTreeCtrl, NULL, TRUE);
 	}
 
-	if (NULL != _hListCtrl) {
-		ListView_SetBkColor(_hListCtrl, bgColor);
-		ListView_SetTextColor(_hListCtrl, fgColor);
-		ListView_SetTextBkColor(_hListCtrl, CLR_NONE);
-		::InvalidateRect(_hListCtrl, NULL, TRUE);
-	}
+	//if (NULL != _hListCtrl) {
+	//	ListView_SetBkColor(_hListCtrl, bgColor);
+	//	ListView_SetTextColor(_hListCtrl, fgColor);
+	//	ListView_SetTextBkColor(_hListCtrl, CLR_NONE);
+	//	::InvalidateRect(_hListCtrl, NULL, TRUE);
+	//}
 }

@@ -66,7 +66,7 @@ public:
 		/* possible new imagelist -> update the window */
 		::SendMessage(_hTreeCtrl, TVM_SETIMAGELIST, TVSIL_NORMAL, (LPARAM)GetSmallImageList(_pExProp->bUseSystemIcons));
 		::SetTimer(_hSelf, EXT_UPDATEDEVICE, 0, NULL);
-		_FileList.redraw();
+		//_FileList.redraw();
 		::RedrawWindow(_ToolBar.getHSelf(), NULL, NULL, TRUE);
 		/* and only when dialog is visible, select item again */
 		SelectItem(_pExProp->szCurrentPath);
@@ -166,14 +166,14 @@ private:
 	BOOL					_isSelNotifyEnable;
 
 	/* handles of controls */
-	HWND					_hListCtrl;
-	HWND					_hHeader;
-	HWND					_hSplitterCtrl;
-	HWND					_hFilter;
+	//HWND					_hListCtrl;
+	//HWND					_hHeader;
+	//HWND					_hSplitterCtrl;
+	//HWND					_hFilter;
 
 	/* classes */
-	FileList				_FileList;
-	ComboOrgi				_ComboFilter;
+	//FileList				_FileList;
+	//ComboOrgi				_ComboFilter;
 	ToolBar					_ToolBar;
 	ReBar					_Rebar;
 
