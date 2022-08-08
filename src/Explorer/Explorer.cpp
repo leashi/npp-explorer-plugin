@@ -958,6 +958,24 @@ BOOL IsFileOpen(const std::wstring &filePath)
     return FALSE;
 }
 
+template<typename ... Args>
+std::string string_format(const char* format, Args ... args) {
+	size_t size = 1 + snprintf(nullptr, 0, format, args ...);  // Extra space for \0
+    std::unique_ptr<char[]> buf(new char[size + 4]);
+	//char buf[size];
+	snprintf(buf.get(), size, format, args ...);
+	return std::string(buf.get());
+}
+
+template<typename ... Args>
+std::wstring string_format(const wchar_t* format, Args ... args) {
+	size_t size = 1 + _snwprintf(nullptr, 0, format, args ...);  // Extra space for \0
+    std::unique_ptr<wchar_t[]> buf(new wchar_t[size + 4]);
+	//char buf[size];
+    _snwprintf(buf.get(), size, format, args ...);
+	return std::wstring(buf.get());
+}
+
 // compare arguments and convert
 BOOL ConvertCall(LPTSTR pszExplArg, LPTSTR pszName, LPTSTR *p_pszNppArg, std::vector<std::wstring> vFileList)
 {
@@ -1021,7 +1039,8 @@ BOOL ConvertCall(LPTSTR pszExplArg, LPTSTR pszName, LPTSTR *p_pszNppArg, std::ve
         /* control if file element exist */
         iCount = _ttoi(pszPtr);
         if (iCount > vFileList.size()) {
-            auto message = std::format(L"Element \"{}\" of argument \"{}\" not selected.", iCount, pszPtr);
+            //auto message = std::format(L"Element \"{}\" of argument \"{}\" not selected.", iCount, pszPtr);
+            auto message = string_format(L"Element \"{}\" of argument \"{}\" not selected.", iCount, pszPtr);
             ::MessageBox(g_nppData._nppHandle, message.c_str(), _T("Error"), MB_OK | MB_ICONERROR);
             return FALSE;
         }
