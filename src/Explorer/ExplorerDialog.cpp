@@ -1673,7 +1673,8 @@ void ExplorerDialog::gotoCurrentFolder(void)
 void ExplorerDialog::gotoCurrentFile(void)
 {
 	TCHAR	pathName[MAX_PATH];
-	::SendMessage(_hParent, NPPM_GETCURRENTDIRECTORY, 0, (LPARAM)pathName);
+	//::SendMessage(_hParent, NPPM_GETCURRENTDIRECTORY, 0, (LPARAM)pathName);
+	::SendMessage(_hParent, NPPM_GETFULLCURRENTPATH, 0, (LPARAM)pathName);
 	_tcscat(pathName, _T("\\"));
 	SelectItem(pathName);
 	//_FileList.SelectCurFile();
