@@ -1548,7 +1548,15 @@ BOOL ExplorerDialog::SelectItem(LPCTSTR path)
 			}
 
 			/* compare path names */
-			_stprintf(TEMP, _T("%s%s\\"), szCurrPath, szItemName);
+			if (_tcslen(szCurrPath) > 0)
+			{
+				_stprintf(TEMP, _T("%s\\%s"), szCurrPath, szItemName);
+			}
+			else
+			{
+				_stprintf(TEMP, _T("%s"), szItemName);
+			}
+			
 			iTempLen = _tcslen(TEMP);
 
 			if (_tcsnicmp(szLongPath, TEMP, iTempLen) == 0) 
@@ -1675,7 +1683,7 @@ void ExplorerDialog::gotoCurrentFile(void)
 	TCHAR	pathName[MAX_PATH];
 	//::SendMessage(_hParent, NPPM_GETCURRENTDIRECTORY, 0, (LPARAM)pathName);
 	::SendMessage(_hParent, NPPM_GETFULLCURRENTPATH, 0, (LPARAM)pathName);
-	_tcscat(pathName, _T("\\"));
+	//_tcscat(pathName, _T("\\"));
 	SelectItem(pathName);
 	//_FileList.SelectCurFile();
 	setFocusOnFile();
