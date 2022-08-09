@@ -3,7 +3,7 @@
 
 截图：
 
-![01](F:\05.thirdparty\leashi\npp-explorer-plugin\doc\01.png)
+![01](https://github.com/leashi/npp-explorer-plugin/blob/main/doc/01.png)
 
 
 源码地址：https://github.com/notepad-plus-plus/notepad-plus-plus
